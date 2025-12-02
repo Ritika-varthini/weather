@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Weather App</title>
+</head>
+<body>
+  <h1>Weather App</h1>
+
+  <input id="city" placeholder="Enter City">
+  <button onclick="getWeather()">Search</button>
+
+  <h2 id="result"></h2>
+
+  <script>
+    async function getWeather() {
+      const city = document.getElementById('city').value;
+
+      const res = await fetch(`http://localhost:5000/weather?city=${city}`);
+      const data = await res.json();
+
+      if (data.error) {
+        document.getElementById("result").innerText = data.error;
+      } else {
+        document.getElementById("result").innerText =
+          `${data.city} → ${data.celsius}°C / ${data.fahrenheit}°F, ${data.description}`;
+      }
+    }
+  </script>
+</body>
+</html>
