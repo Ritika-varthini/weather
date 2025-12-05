@@ -7,22 +7,60 @@
   <h1>Weather App</h1>
 
   <input id="city" placeholder="Enter City">
+
+  <select id="unit" onchange="updateUnit()">
+    <option value="celsius">Celsius (°C)</option>
+    <option value="fahrenheit">Fahrenheit (°F)</option>
+  </select>
+
   <button onclick="getWeather()">Search</button>
 
   <h2 id="result"></h2>
 
   <script>
+    let savedData = null;
+    document.getElementById("city").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        getWeather();
+      }
+    });
+
     async function getWeather() {
-      const city = document.getElementById('city').value;
+      const city = document.getElementById("city").value;
 
-      const res = await fetch(`http://localhost:5000/weather?city=${city}`);
-      const data = await res.json();
+      try {
+        const res = await fetch(`http://localhost:5000/weather?city=${city}`);
 
-      if (data.error) {
-        document.getElementById("result").innerText = data.error;
+        if (!res.ok) {
+          throw new Error("Server not responding. Please check backend.");
+        }
+
+        const data = await res.json();
+
+        if (data.error) {
+          document.getElementById("result").innerText = data.error;
+        } else {
+          savedData = data;
+          updateUnit();
+        }
+
+      } catch (err) {
+        document.getElementById("result").innerText =
+          "Cannot connect to server.";
+      }
+    }
+
+    function updateUnit() {
+      if (!savedData) return;
+
+      const unit = document.getElementById("unit").value;
+
+      if (unit === "celsius") {
+        document.getElementById("result").innerText =
+          `${savedData.city} → ${savedData.celsius}°C, ${savedData.description}`;
       } else {
         document.getElementById("result").innerText =
-          `${data.city} → ${data.celsius}°C / ${data.fahrenheit}°F, ${data.description}`;
+          `${savedData.city} → ${savedData.fahrenheit}°F, ${savedData.description}`;
       }
     }
   </script>
