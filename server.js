@@ -18,7 +18,7 @@ app.get("/weather", async (req, res) => {
     const kelvin = result.data.main.temp;
     const celsius = (kelvin - 273.15).toFixed(2);
     const fahrenheit = ((celsius * 9) / 5 + 32).toFixed(2);
-
+ 
     res.json({
       city: result.data.name,
       celsius,
