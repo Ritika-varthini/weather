@@ -5,15 +5,13 @@ require("dotenv").config();
 
 const router = express.Router();
 
-// Main weather route
-// Supports: /weather?q=London&units=metric
+// GET /weather?q=London
 router.get("/", async (req, res) => {
   try {
-    const city = req.query.q; // use 'q' like OpenWeatherMap
-    const units = req.query.units || "metric"; // default to metric
+    const city = req.query.q;
 
     if (!city) {
-      return res.status(400).json({ error: "City parameter (q) is required" });
+      return res.status(400).json({ error: "City is required" });
     }
 
     const response = await axios.get(
@@ -22,40 +20,7 @@ router.get("/", async (req, res) => {
         params: {
           q: city,
           appid: process.env.OPENWEATHER_API_KEY,
-          units: units,
-        },
-      }
-    );
-
-    const weatherData = {
-      city: response.data.name,
-      temperature: response.data.main.temp,
-      description: response.data.weather[0].description,
-    };
-
-    // Save to database
-    await Weather.create(weatherData);
-
-    res.json(weatherData);
-  } catch (error) {
-    console.error(error.response ? error.response.data : error.message);
-    res.status(500).json({ error: "Error fetching weather data" });
-  }
-});
-
-// Optional: /weather/:city for your front-end
-router.get("/:city", async (req, res) => {
-  try {
-    const city = req.params.city;
-    const units = "metric"; // front-end uses metric by default
-
-    const response = await axios.get(
-      "https://api.openweathermap.org/data/2.5/weather",
-      {
-        params: {
-          q: city,
-          appid: process.env.OPENWEATHER_API_KEY,
-          units: units,
+          units: "metric",
         },
       }
     );
@@ -67,11 +32,10 @@ router.get("/:city", async (req, res) => {
     };
 
     await Weather.create(weatherData);
-
     res.json(weatherData);
-  } catch (error) {
-    console.error(error.response ? error.response.data : error.message);
-    res.status(500).json({ error: "Error fetching weather data" });
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    res.status(500).json({ error: "Failed to fetch weather" });
   }
 });
 

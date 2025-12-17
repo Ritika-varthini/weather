@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Weather App</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 50px; }
+    body { font-family: Arial; margin: 40px; }
     input, button { padding: 10px; font-size: 16px; }
     #result { margin-top: 20px; }
   </style>
 </head>
 <body>
+
   <h1>Weather App</h1>
-  <input type="text" id="city" placeholder="Enter city name">
+
+  <input type="text" id="city" placeholder="Enter city">
   <button onclick="getWeather()">Get Weather</button>
 
   <div id="result"></div>
@@ -19,26 +21,30 @@
   <script>
     async function getWeather() {
       const city = document.getElementById("city").value;
-      if (!city) {
-        alert("Please enter a city");
-        return;
-      }
+      if (!city) return alert("Enter city");
 
       try {
-        const response = await fetch(`/weather?q=${city}&units=metric`);
-
-        if (!response.ok) throw new Error("City not found");
+        const response = await fetch(
+          "http://localhost:3000/weather?q=" + city
+        );
 
         const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error);
+        }
+
         document.getElementById("result").innerHTML = `
           <h2>${data.city}</h2>
           <p>Temperature: ${data.temperature} °C</p>
           <p>Description: ${data.description}</p>
         `;
       } catch (err) {
-        document.getElementById("result").innerHTML = `<p style="color:red">${err.message}</p>`;
+        document.getElementById("result").innerHTML =
+          "<p style='color:red'>Failed to fetch</p>";
       }
     }
   </script>
+
 </body>
 </html>
