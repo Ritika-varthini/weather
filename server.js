@@ -1,36 +1,26 @@
 const express = require("express");
-const axios = require("axios");
+const sequelize = require("./config/db");
+const weatherRoutes = require("./routes/weatherRoutes");
 require("dotenv").config();
-const cors = require("cors");
 
 const app = express();
-app.use(cors());
+const PORT = process.env.PORT || 3000;
 
-app.get("/weather", async (req, res) => {
-  const city = req.query.city;
-  const apiKey = process.env.WEATHER_API_KEY; 
+app.use(express.json());
+app.use("/weather", weatherRoutes);
 
-  try {
-    const result = await axios.get(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("✅ Database connected");
+    return sequelize.sync();
+  })
+  .then(() => {
+    console.log("✅ Database synced");
+    app.listen(PORT, () =>
+      console.log(`✅ Server running on port ${PORT}`)
     );
-
-    const kelvin = result.data.main.temp;
-    const celsius = (kelvin - 273.15).toFixed(2);
-    const fahrenheit = ((celsius * 9) / 5 + 32).toFixed(2);
- 
-    res.json({
-      city: result.data.name,
-      celsius,
-      fahrenheit,
-      description: result.data.weather[0].description,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.listen(5000, () => {
-  console.log("Server running at http://localhost:5000");
-  console.log("API Key Loaded:", process.env.WEATHER_API_KEY);
-});
+  })
+  .catch((err) => {
+    console.error("❌ Database error:", err.message);
+  });
