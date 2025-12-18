@@ -1,19 +1,17 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 
-const Weather = sequelize.define("Weather", {
+const City = sequelize.define("City", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  temperature: {
-    type: DataTypes.FLOAT,
-    allowNull: false,
-  },
-  description: {
+  name: {
     type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
   },
 });
 
-module.exports = Weather;
+module.exports = City;
